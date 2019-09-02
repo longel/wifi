@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="OliverDialog" parent="@android:style/Theme.Dialog">
+
+        <item name="android:windowFrame">@null</item>
+
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <item name="android:windowIsFloating">true</item>
+
+
+
+        <item name="android:windowContentOverlay">@null</item>
+
+        <item name="android:backgroundDimEnabled">true</item>
+
+        <item name="android:windowFullscreen">false</item>
+
+        <item name="android:windowAnimationStyle">@style/OliverDialogTranslateAnimation</item>
+
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+
+    <style name="OliverDialogRotateAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter_rotate</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit_rotate</item>
+    </style>
+    <style name="OliverDialogScaleAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter_scale</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit_scale</item>
+    </style>
+    <style name="OliverDialogTranslateAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter_translate</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit_translate</item>
+    </style>
+    <style name="OliverDialogTranslateScaleAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter_translate_scale</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit_translate_scale</item>
+    </style>
+
+</resources>

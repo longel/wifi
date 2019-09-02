@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_active_wifi"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/tv_dialog_connect_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="oliver_5G"/>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_dialog_password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/divide_line"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_dialog_connect_title">
+
+        <TextView
+            android:id="@+id/tv_dialog_fail_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="连接失败，请重试！"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="连接失败，请重试！"/>
+
+        <TextView
+            android:id="@+id/tv_dialog_password_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="密码"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_fail_tip"
+            tools:text="密码"/>
+
+        <ImageView
+            android:id="@+id/iv_dialog_password_eye"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_bg_show_hide_password"
+            android:scaleType="centerInside"
+            android:src="@drawable/selector_wifi_show_hide_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/et_dialog_password"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_password_text"
+            tools:src="@mipmap/ic_show_password"/>
+
+        <View
+            android:id="@+id/vertical_divide_line_1"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="@id/iv_dialog_password_eye"
+            app:layout_constraintEnd_toStartOf="@id/iv_dialog_password_eye"
+            app:layout_constraintStart_toEndOf="@id/et_dialog_password"
+            app:layout_constraintTop_toTopOf="@id/iv_dialog_password_eye"/>
+
+        <EditText
+            android:id="@+id/et_dialog_password"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/shape_bg_password_edit"
+            android:gravity="start|center_vertical"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:paddingBottom="5dp"
+            android:paddingEnd="5dp"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:textColor="@android:color/darker_gray"
+            android:textCursorDrawable="@drawable/shape_cursor_password"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_dialog_password_eye"
+            app:layout_constraintEnd_toStartOf="@id/vertical_divide_line_1"
+            app:layout_constraintStart_toStartOf="@id/tv_dialog_password_text"
+            app:layout_constraintTop_toTopOf="@id/iv_dialog_password_eye"
+            tools:text="请输入密码"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+
+    <View
+        android:id="@+id/divide_line"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="25dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cl_dialog_password"/>
+
+    <com.qmuiteam.qmui.alpha.QMUIAlphaTextView
+        android:id="@+id/tv_dialog_cancel"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:text="取消"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/divide_line_2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divide_line"
+        tools:text="取消"/>
+
+    <View
+        android:id="@+id/divide_line_2"
+        android:layout_width="0.5dp"
+        android:layout_height="0dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="@id/tv_dialog_cancel"
+        app:layout_constraintEnd_toStartOf="@id/tv_dialog_connect"
+        app:layout_constraintStart_toEndOf="@id/tv_dialog_cancel"
+        app:layout_constraintTop_toTopOf="@id/tv_dialog_cancel"/>
+
+    <com.qmuiteam.qmui.alpha.QMUIAlphaTextView
+        android:id="@+id/tv_dialog_connect"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:text="连接"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_dialog_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/divide_line_2"
+        tools:text="连接"/>
+
+
+</android.support.constraint.ConstraintLayout>

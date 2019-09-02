@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+def androidConfig = rootProject.ext.android
+def dependency = rootProject.ext.dependencies
+static def releaseTime() {
+    return new Date().format("yyyyMMddHHmmss", TimeZone.getDefault())
+}
+android {
+    compileSdkVersion androidConfig.compileSdkVersion
+    defaultConfig {
+        applicationId androidConfig.applicationId
+        minSdkVersion androidConfig.minSdkVersion
+        targetSdkVersion androidConfig.targetSdkVersion
+        versionCode androidConfig.versionCode
+        versionName androidConfig.versionName
+        testInstrumentationRunner androidConfig.testInstrumentationRunner
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    // 一定要写在android节点中
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                // 显示app名称+当前版本号
+                def fileName = "${variant.versionName}"
+                // 加入打包时间
+                fileName = fileName + "-${releaseTime()}"
+                // 如果是debug版本，加入beta版本号
+                if ('debug'.equals(variant.buildType.name)) {
+                    fileName = fileName + "-debug.apk"
+                } else {
+                    // 如果是release版本，直接显示
+                    fileName = fileName + "-release.apk"
+                }
+//                output.outputFileName = new File(outputFile.parent, fileName)
+                output.outputFileName = fileName
+            }
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "junit:junit:4.12"
+    implementation "com.android.support.test:runner:1.0.2"
+    implementation "com.android.support.test.espresso:espresso-core:3.0.2"
+    implementation project(':sdk')
+}

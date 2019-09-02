@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_enable_wifi_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="开启WLAN"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/tv_enable_wifi_hint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_goneMarginBottom="20dp"
+        tools:layout_marginStart="20dp"/>
+
+    <TextView
+        android:id="@+id/tv_enable_wifi_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="要查看可用网络，请打开WLAN"
+        android:textColor="#e2e2e2"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/tv_enable_wifi_text"
+        app:layout_constraintTop_toBottomOf="@id/tv_enable_wifi_text"
+        tools:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/iv_wifi_switch"
+        android:layout_width="40dp"
+        android:layout_height="20dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/selector_wifi_switcher"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_marginEnd="20dp"/>
+
+</android.support.constraint.ConstraintLayout>
