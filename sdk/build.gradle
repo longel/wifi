@@ -28,13 +28,9 @@ dependencies {
     implementation "com.android.support.test:runner:1.0.2"
     implementation "com.android.support.test.espresso:espresso-core:3.0.2"
 
-    api dependency.appcompatV7
-    api dependency.constraintLayout
     api dependency.rxAndroid
     api dependency.rxbinding
     api dependency.rxJava
     api dependency.eventBus
     api dependency.gson
-    api dependency.qmui
-    api dependency.BaseRecyclerViewAdapterHelper
 }

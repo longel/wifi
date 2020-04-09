@@ -1,6 +1,5 @@
 package com.oliver.sdk.model;
 
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 
 import com.oliver.sdk.annotations.Connection;
@@ -21,7 +20,7 @@ import static com.oliver.sdk.constant.Global.NONE;
  * desc   :
  */
 
-public class WifiHotspot implements IWifiHotspot {
+public class WifiHotspot {
 
     private String bssid;   // 对于手机端来说，就是MAC地址
     private String ssid;    // wifi名称
@@ -206,11 +205,6 @@ public class WifiHotspot implements IWifiHotspot {
 
     public boolean hasEncryption() {
         return getEncryption() != NONE;
-    }
-
-    @Override
-    public void onWifiHotspotCreated(ScanResult scanResult) {
-
     }
 
 

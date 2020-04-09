@@ -1,4 +1,4 @@
-package com.oliver.sdk.base;
+package com.oliver.wififragment.base;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import com.oliver.sdk.R;
 import com.oliver.sdk.WifiAdmin;
-import com.oliver.sdk.model.AccessPoint;
+import com.oliver.wififragment.model.AccessPoint;
 import com.qmuiteam.qmui.alpha.QMUIAlphaButton;
 
 /**

@@ -1,4 +1,4 @@
-package com.oliver.sdk.base;
+package com.oliver.wififragment.base;
 
 import android.arch.lifecycle.Observer;
 import android.graphics.Color;
@@ -16,16 +16,17 @@ import android.widget.Toast;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.oliver.sdk.R;
 import com.oliver.sdk.WifiAdmin;
-import com.oliver.sdk.adapter.WifiAdapter;
 import com.oliver.sdk.event.ConnectionEvent;
-import com.oliver.sdk.event.ScanResultEvent;
+import com.oliver.wififragment.event.ScanResultEvent;
 import com.oliver.sdk.event.SupplicantStateEvent;
 import com.oliver.sdk.event.WifiStateEvent;
-import com.oliver.sdk.model.AccessPoint;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.util.LogUtils;
-import com.oliver.sdk.vm.WifiViewModel;
-import com.oliver.sdk.widget.ConnectDialogBuilder;
+import com.oliver.wififragment.widget.ConnectDialogBuilder;
+import com.oliver.wififragment.adapter.WifiAdapter;
+import com.oliver.wififragment.constant.Constants;
+import com.oliver.wififragment.model.AccessPoint;
+import com.oliver.wififragment.vm.WifiViewModel;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 
@@ -114,12 +115,11 @@ public class WifiFragment extends BaseFragment {
                 if (accessPoint == null) {
                     return;
                 }
-                if (accessPoint.getItemType() == AccessPoint.LAYOUT_TYPE_HEADER) {
+                if (accessPoint.getItemType() == Constants.LAYOUT_TYPE_HEADER) {
                     return;
                 }
                 if (accessPoint.isConnected()) { // 已连接
                     // TODO 弹出二维码分享密码
-
                     return;
                 }
                 if (accessPoint.isConfigured()) {
@@ -137,7 +137,6 @@ public class WifiFragment extends BaseFragment {
                 if (wifiStateEvent == null) {
                     return;
                 }
-
             }
         });
         mViewModel.getConnectionStateEventLiveData().observe(this, new Observer<ConnectionEvent>() {

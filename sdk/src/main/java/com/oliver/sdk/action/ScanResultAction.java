@@ -10,19 +10,16 @@ import java.util.List;
  * desc   :
  */
 
-public class ScanResultAction<T extends WifiHotspot> {
+public class ScanResultAction {
 
-    private List<T> datas;
+    private List<WifiHotspot> datas;
 
-    public List<T> getDatas() {
+    public List<WifiHotspot> getDatas() {
         return datas;
     }
 
-    public void setDatas(List<T> datas) {
+    public void setDatas(List<WifiHotspot> datas) {
         this.datas = datas;
     }
 
-    public T create() {
-        return null;
-    }
 }

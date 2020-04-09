@@ -1,6 +1,5 @@
-package com.oliver.sdk.widget;
+package com.oliver.wififragment.widget;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.Editable;
@@ -14,7 +13,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.oliver.sdk.R;

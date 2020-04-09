@@ -1,6 +1,6 @@
-package com.oliver.sdk.event;
+package com.oliver.wififragment.event;
 
-import com.oliver.sdk.model.AccessPoint;
+import com.oliver.wififragment.model.AccessPoint;
 
 import java.util.List;
 

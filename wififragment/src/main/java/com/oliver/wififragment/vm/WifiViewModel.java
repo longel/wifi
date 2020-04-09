@@ -1,4 +1,4 @@
-package com.oliver.sdk.vm;
+package com.oliver.wififragment.vm;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -13,16 +13,16 @@ import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
 
 import com.oliver.sdk.WifiAdmin;
-import com.oliver.sdk.action.ScanAction;
 import com.oliver.sdk.action.ScanResultAction;
 import com.oliver.sdk.constant.Global;
 import com.oliver.sdk.event.ConnectionEvent;
 import com.oliver.sdk.event.RSSIEvent;
-import com.oliver.sdk.event.ScanResultEvent;
+import com.oliver.wififragment.event.ScanResultEvent;
 import com.oliver.sdk.event.SupplicantStateEvent;
 import com.oliver.sdk.event.WifiEvent;
 import com.oliver.sdk.event.WifiStateEvent;
-import com.oliver.sdk.model.AccessPoint;
+import com.oliver.wififragment.constant.Constants;
+import com.oliver.wififragment.model.AccessPoint;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.receiver.WifiReceiver;
 import com.oliver.sdk.util.LogUtils;
@@ -33,6 +33,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * author : Oliver
@@ -157,8 +158,7 @@ public class WifiViewModel extends AndroidViewModel {
 
                 break;
             case WifiEvent.SCAN_RESULT_UPDATE:
-                ScanAction scanEvent = new ScanAction();
-                WifiAdmin.get().getScanResult(scanEvent);
+                WifiAdmin.get().getScanResult();
                 break;
             case WifiEvent.NETWORK_STATE_UPDATE:
                 NetworkInfo networkInfo = wifiStateEvent.getNetworkInfo();
@@ -191,27 +191,60 @@ public class WifiViewModel extends AndroidViewModel {
     }
 
     public void syncState() {
-        onScanResult(new ScanAction());
+        onScanResult(new ScanResultAction());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onScanResult(ScanResultAction<AccessPoint> scanResultEvent) {
+    public void onScanResult(ScanResultAction scanResultEvent) {
         if (scanResultEvent == null) {
             return;
         }
-        List<AccessPoint> datas = scanResultEvent.getDatas();
+        List<AccessPoint> accessPoints = new ArrayList<>();
+        List<WifiHotspot> datas = scanResultEvent.getDatas();
         LogUtils.d(TAG, "onScanResult: " + datas);
-        if (datas == null) {
-            datas = new ArrayList<>();
+        if (datas != null && datas.size() > 0) {
+            for (WifiHotspot hotspot : datas) {
+                AccessPoint accessPoint = copyFromHotSpot(hotspot);
+                accessPoints.add(accessPoint);
+            }
         }
         AccessPoint accessPoint = new AccessPoint();
-        accessPoint.setItemLayoutType(AccessPoint.LAYOUT_TYPE_HEADER);
+        accessPoint.setItemLayoutType(Constants.LAYOUT_TYPE_HEADER);
         accessPoint.setWifiEnable(WifiAdmin.get().isWifiEnable());
-        datas.add(0, accessPoint);
+        accessPoints.add(0, accessPoint);
         ScanResultEvent event = new ScanResultEvent();
-        event.setDatas(datas);
+        event.setDatas(accessPoints);
         mScanResultEventLiveData.setValue(event);
     }
+
+    private AccessPoint copyFromHotSpot(WifiHotspot hotspot) {
+        AccessPoint accessPoint = new AccessPoint();
+        accessPoint.setBssid(hotspot.getBssid());
+        accessPoint.setSsid(hotspot.getSsid());
+        accessPoint.setPassword(hotspot.getPassword());
+        accessPoint.setNetworkId(hotspot.getNetworkId());
+        accessPoint.setStrength(hotspot.getStrength());
+        accessPoint.setConnection(hotspot.getConnection());
+        accessPoint.setEncryption(hotspot.getEncryption());
+        accessPoint.setLevel(hotspot.getLevel());
+        accessPoint.setCapabilities(hotspot.getCapabilities());
+        accessPoint.setLinkSpeed(hotspot.getLinkSpeed());
+        accessPoint.setFrequency(hotspot.getFrequency());
+        accessPoint.setIpAddress(hotspot.getIpAddress());
+        accessPoint.setGateway(hotspot.getGateway());
+        accessPoint.setNetmask(hotspot.getNetmask());
+        accessPoint.setDns1(hotspot.getDns1());
+        accessPoint.setDns2(hotspot.getDns2());
+        accessPoint.setServerAddress(hotspot.getServerAddress());
+        if (hotspot.isConnected() || hotspot.isConnecting()) {
+            accessPoint.setItemLayoutType(Constants.LAYOUT_TYPE_ACTIVE);
+        } else {
+            accessPoint.setItemLayoutType(Constants.LAYOUT_TYPE_INACTIVE);
+        }
+        accessPoint.setWifiEnable(WifiAdmin.get().isWifiEnable());
+        return accessPoint;
+    }
+
 
     public boolean isSame(WifiHotspot hotspot, WifiInfo wifiInfo) {
         return WifiAdmin.get().isSame(hotspot, wifiInfo);
@@ -222,7 +255,7 @@ public class WifiViewModel extends AndroidViewModel {
     }
 
     public void connect(WifiHotspot hotspot, boolean remove) {
-        boolean connect = WifiAdmin.get().connect(hotspot,remove);
+        boolean connect = WifiAdmin.get().connect(hotspot, remove);
         LogUtils.d(TAG, "connect operation result：" + connect);
     }
 

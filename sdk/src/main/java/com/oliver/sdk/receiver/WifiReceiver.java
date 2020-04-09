@@ -9,7 +9,6 @@ import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 
 import com.oliver.sdk.event.WifiEvent;
-import com.oliver.sdk.util.LogUtils;
 import com.oliver.sdk.util.SysUtil;
 
 import org.greenrobot.eventbus.EventBus;

@@ -1,4 +1,4 @@
-package com.oliver.sdk.adapter;
+package com.oliver.wififragment.adapter;
 
 import android.widget.ImageView;
 
@@ -6,7 +6,8 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.oliver.sdk.R;
 import com.oliver.sdk.constant.Global;
-import com.oliver.sdk.model.AccessPoint;
+import com.oliver.wififragment.constant.Constants;
+import com.oliver.wififragment.model.AccessPoint;
 
 import java.util.List;
 
@@ -24,14 +25,14 @@ public class WifiAdapter extends BaseMultiItemQuickAdapter<AccessPoint, BaseView
 
     public WifiAdapter(List<AccessPoint> data) {
         super(data);
-        addItemType(AccessPoint.LAYOUT_TYPE_ACTIVE, R.layout.layout_wifi_active);
-        addItemType(AccessPoint.LAYOUT_TYPE_HEADER, R.layout.layout_wifi_switcher);
-        addItemType(AccessPoint.LAYOUT_TYPE_INACTIVE, R.layout.layout_wifi_inactive);
+        addItemType(Constants.LAYOUT_TYPE_ACTIVE, R.layout.layout_wifi_active);
+        addItemType(Constants.LAYOUT_TYPE_HEADER, R.layout.layout_wifi_switcher);
+        addItemType(Constants.LAYOUT_TYPE_INACTIVE, R.layout.layout_wifi_inactive);
     }
 
     @Override
     protected void convert(BaseViewHolder helper, final AccessPoint item) {
-        if (helper.getItemViewType() == AccessPoint.LAYOUT_TYPE_HEADER) {
+        if (helper.getItemViewType() == Constants.LAYOUT_TYPE_HEADER) {
             ImageView ivSwitcher = helper.getView(R.id.iv_wifi_switch);
             if (item.hasWifiEnable()) {
                 ivSwitcher.setSelected(true);
@@ -40,14 +41,14 @@ public class WifiAdapter extends BaseMultiItemQuickAdapter<AccessPoint, BaseView
             }
             helper.setVisible(R.id.tv_enable_wifi_hint, !item.hasWifiEnable())
                     .addOnClickListener(R.id.iv_wifi_switch);
-        } else if (helper.getItemViewType() == AccessPoint.LAYOUT_TYPE_INACTIVE) {
+        } else if (helper.getItemViewType() == Constants.LAYOUT_TYPE_INACTIVE) {
             ImageView wifiIvIcon = helper.getView(R.id.iv_inactive_wifi_icon);
             updateWifiIcon(item, wifiIvIcon);
             helper.setText(R.id.tv_inactive_wifi_ssid, item.getSsid())
                     .setVisible(R.id.iv_inactive_wifi_lock, item.hasEncryption())
                     .addOnClickListener(R.id.iv_inactive_wifi_enter);
 
-        } else if (helper.getItemViewType() == AccessPoint.LAYOUT_TYPE_ACTIVE) {
+        } else if (helper.getItemViewType() == Constants.LAYOUT_TYPE_ACTIVE) {
             ImageView wifiIvIcon = helper.getView(R.id.iv_active_wifi_icon);
             updateWifiIcon(item, wifiIvIcon);
             helper.setText(R.id.tv_active_wifi_ssid, item.getSsid())
