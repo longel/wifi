@@ -97,7 +97,7 @@ public class WifiFragment extends BaseFragment {
                     if (WifiAdmin.get().isWifiEnable()) {
                         WifiAdmin.get().disableWifi();
                     } else {
-                        WifiAdmin.get().enableWifi();
+                        WifiAdmin.get().enableWifi(true);
                     }
                 } else if (view.getId() == R.id.iv_inactive_wifi_enter) {
                     showDetailFragment(position);

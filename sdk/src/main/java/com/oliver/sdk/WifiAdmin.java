@@ -13,26 +13,19 @@ import android.net.wifi.WifiManager;
 import android.support.annotation.RequiresPermission;
 import android.text.TextUtils;
 
-import com.oliver.sdk.action.ScanResultAction;
 import com.oliver.sdk.constant.Global;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.util.LogUtils;
 import com.oliver.sdk.util.SysUtil;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * author : Oliver
@@ -53,9 +46,18 @@ public class WifiAdmin {
     private boolean filterWifiByEmptySSID = true;
     private boolean sortByHasConfigured = false; // 将已配置过的Wifi放在第一位
 
+    private ThreadPoolExecutor mSingleThreadPoolExecutor;
+
     private WifiAdmin() {
         mWifiManager = (WifiManager) sContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         mConnectivityManager = (ConnectivityManager) sContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        mSingleThreadPoolExecutor = new ThreadPoolExecutor(1,
+                1,
+                0,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(10),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.DiscardOldestPolicy());
     }
 
     public static WifiAdmin get() {
@@ -72,7 +74,6 @@ public class WifiAdmin {
     public static void init(Context context) {
         sContext = context.getApplicationContext();
     }
-
 
     private static final class Holder {
         @SuppressLint("StaticFieldLeak")
@@ -126,7 +127,6 @@ public class WifiAdmin {
         return mWifiManager.isScanAlwaysAvailable();
     }
 
-
     public boolean disconnect() {
         return mWifiManager.disconnect();
     }
@@ -157,7 +157,6 @@ public class WifiAdmin {
         LogUtils.d(TAG, "connect networkId：" + networkId);
         return mWifiManager.enableNetwork(networkId, true);
     }
-
 
     public boolean connect(WifiHotspot hotspot) {
         return connect(hotspot, false);
@@ -199,7 +198,6 @@ public class WifiAdmin {
         return false;
     }
 
-
     public WifiConfiguration createConfiguration(WifiHotspot hotspot) {
         if (hotspot == null) {
             return null;
@@ -232,7 +230,6 @@ public class WifiAdmin {
         }
         return config;
     }
-
 
     /**
      * 判断该ScanResult是否连接过且连接配置还未被清除
@@ -326,117 +323,18 @@ public class WifiAdmin {
         return mWifiManager.getConfiguredNetworks();
     }
 
-
-    public void getScanResult() {
-        getScanResult(true);
+    public void getScanResult(OnScanResultCallback callback) {
+        getScanResult(true, callback);
     }
 
-    public void getScanResult(boolean sort) {
-        getScanResult(sort, true);
+    public void getScanResult(boolean sort, OnScanResultCallback callback) {
+        getScanResult(sort, true, callback);
     }
 
-    public void getScanResult(final boolean sort, final boolean descend) {
-        Disposable disposable = Observable
-                .create(new ObservableOnSubscribe<List<ScanResult>>() {
-                    @Override
-                    public void subscribe(ObservableEmitter<List<ScanResult>> emitter) {
-                        if (!emitter.isDisposed()) {
-                            List<ScanResult> scanResults = mWifiManager.getScanResults();
-                            if (sort) {
-                                if (descend) {
-                                    Collections.sort(scanResults, descendComparator);
-                                } else {
-                                    Collections.sort(scanResults, ascendComparator);
-                                }
-                            }
-                            if (scanResults == null) {
-                                emitter.onComplete();
-                                return;
-                            }
-                            emitter.onNext(scanResults);
-                            emitter.onComplete();
-                        }
-                    }
-                })
-                .map(new Function<List<ScanResult>, List<WifiHotspot>>() {
-                    @Override
-                    public List<WifiHotspot> apply(List<ScanResult> scanResults) throws Exception {
-                        List<WifiHotspot> wifiHotspots = new ArrayList<>();
-                        if (scanResults != null && scanResults.size() > 0) {
-                            WifiHotspot connectedWifi = null;
-                            LogUtils.d(TAG, "getActiveWifi: " + getActiveWifi());
-                            LogUtils.d(TAG, "getActiveNetworkInfo: " + getActiveNetworkInfo());
-                            for (ScanResult scanResult : scanResults) {
-
-                                /**
-                                 * 过滤掉没有名字的Wifi
-                                 */
-                                if (filterWifiByEmptySSID && TextUtils.isEmpty(scanResult.SSID.trim())) {
-                                    continue;
-                                }
-                                WifiHotspot hotspot = new WifiHotspot();
-                                hotspot.setBssid(scanResult.BSSID);
-                                hotspot.setSsid(scanResult.SSID);
-                                hotspot.setPassword("");
-                                hotspot.setLevel(scanResult.level);
-                                hotspot.setStrength(transStrength(scanResult));
-                                hotspot.setEncryption(transCapability(scanResult));
-                                hotspot.setConnection(transConnectionState(scanResult));
-                                hotspot.setCapabilities(scanResult.capabilities);
-                                hotspot.setNetworkId(getConfigId(scanResult));
-                                if (placeActiveWifi2First
-                                        && (hotspot.isConnected() || hotspot.isConnecting())) {
-                                    connectedWifi = hotspot;
-                                } else {
-                                    wifiHotspots.add(hotspot);
-                                }
-                                WifiInfo wifiInfo = getActiveWifi();
-                                if (hotspot.isConnected() && wifiInfo != null) {
-                                    hotspot.setFrequency(wifiInfo.getFrequency());
-                                    hotspot.setLinkSpeed(wifiInfo.getLinkSpeed());
-                                }
-                                DhcpInfo dhcpInfo = getDhcpInfo();
-                                if (hotspot.isConnected() && dhcpInfo != null) {
-                                    hotspot.setDns1(dhcpInfo.dns1);
-                                    hotspot.setDns2(dhcpInfo.dns2);
-                                    hotspot.setGateway(dhcpInfo.gateway);
-                                    hotspot.setIpAddress(dhcpInfo.ipAddress);
-                                    hotspot.setNetmask(dhcpInfo.netmask);
-                                    hotspot.setServerAddress(dhcpInfo.serverAddress);
-                                }
-                            }
-                            if (connectedWifi != null) {
-                                wifiHotspots.add(0, connectedWifi);
-                            }
-                        }
-                        return wifiHotspots;
-                    }
-                })
-                .map(new Function<List<WifiHotspot>, List<WifiHotspot>>() {
-                    @Override
-                    public List<WifiHotspot> apply(List<WifiHotspot> wifiHotspots) {
-                        if (wifiHotspots != null && wifiHotspots.size() > 0) {
-                            if (sortByHasConfigured) {
-                                return sortedByHasConfigured(wifiHotspots);
-                            }
-                        }
-                        return wifiHotspots;
-                    }
-                })
-                .subscribeOn(Schedulers.single())
-                .subscribe(new Consumer<List<WifiHotspot>>() {
-                    @Override
-                    public void accept(List<WifiHotspot> wifiHotspots) {
-                        ScanResultAction resultEvent = new ScanResultAction();
-                        resultEvent.setDatas(wifiHotspots);
-                        EventBus.getDefault().post(resultEvent);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                });
+    public void getScanResult(final boolean sort, final boolean descend, OnScanResultCallback callback) {
+        if (mSingleThreadPoolExecutor != null) {
+            mSingleThreadPoolExecutor.execute(new ScanResultRunnable(sort, descend, callback));
+        }
     }
 
     public List<WifiHotspot> sortedByHasConfigured(List<WifiHotspot> wifiHotspots) {
@@ -577,8 +475,6 @@ public class WifiAdmin {
 
     /**
      * 只有连接成功才能有值
-     *
-     * @return
      */
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     private NetworkInfo getActiveNetworkInfo() {
@@ -612,4 +508,106 @@ public class WifiAdmin {
             return o1.level - o2.level;
         }
     };
+
+
+    public interface OnScanResultCallback {
+
+        void onScanResult(List<WifiHotspot> wifiHotspots);
+    }
+
+    private class ScanResultRunnable implements Runnable {
+
+        private OnScanResultCallback callback;
+        private boolean sort;
+        private boolean descend;
+
+        private ScanResultRunnable(boolean sort, boolean descend, OnScanResultCallback callback) {
+            this.sort = sort;
+            this.descend = descend;
+            this.callback = callback;
+        }
+
+        @Override
+        public void run() {
+            List<ScanResult> scanResults = sortScanResults();
+            List<WifiHotspot> wifiHotspots = trans2Hotspots(scanResults);
+            wifiHotspots = sortHotspotsByConfig(wifiHotspots);
+            if (callback != null) {
+                callback.onScanResult(wifiHotspots);
+            }
+        }
+
+        private List<ScanResult> sortScanResults() {
+            List<ScanResult> scanResults = mWifiManager.getScanResults();
+            if (sort) {
+                if (descend) {
+                    Collections.sort(scanResults, descendComparator);
+                } else {
+                    Collections.sort(scanResults, ascendComparator);
+                }
+            }
+            return scanResults;
+        }
+
+        private List<WifiHotspot> trans2Hotspots(List<ScanResult> scanResults) {
+            List<WifiHotspot> wifiHotspots = new ArrayList<>();
+            if (scanResults != null && scanResults.size() > 0) {
+                WifiHotspot connectedWifi = null;
+                LogUtils.d(TAG, "getActiveWifi: " + getActiveWifi());
+                LogUtils.d(TAG, "getActiveNetworkInfo: " + getActiveNetworkInfo());
+                for (ScanResult scanResult : scanResults) {
+
+                    /**
+                     * 过滤掉没有名字的Wifi
+                     */
+                    if (filterWifiByEmptySSID && TextUtils.isEmpty(scanResult.SSID.trim())) {
+                        continue;
+                    }
+                    WifiHotspot hotspot = new WifiHotspot();
+                    hotspot.setBssid(scanResult.BSSID);
+                    hotspot.setSsid(scanResult.SSID);
+                    hotspot.setPassword("");
+                    hotspot.setLevel(scanResult.level);
+                    hotspot.setStrength(transStrength(scanResult));
+                    hotspot.setEncryption(transCapability(scanResult));
+                    hotspot.setConnection(transConnectionState(scanResult));
+                    hotspot.setCapabilities(scanResult.capabilities);
+                    hotspot.setNetworkId(getConfigId(scanResult));
+                    if (placeActiveWifi2First
+                            && (hotspot.isConnected() || hotspot.isConnecting())) {
+                        connectedWifi = hotspot;
+                    } else {
+                        wifiHotspots.add(hotspot);
+                    }
+                    WifiInfo wifiInfo = getActiveWifi();
+                    if (hotspot.isConnected() && wifiInfo != null) {
+                        hotspot.setFrequency(wifiInfo.getFrequency());
+                        hotspot.setLinkSpeed(wifiInfo.getLinkSpeed());
+                    }
+                    DhcpInfo dhcpInfo = getDhcpInfo();
+                    if (hotspot.isConnected() && dhcpInfo != null) {
+                        hotspot.setDns1(dhcpInfo.dns1);
+                        hotspot.setDns2(dhcpInfo.dns2);
+                        hotspot.setGateway(dhcpInfo.gateway);
+                        hotspot.setIpAddress(dhcpInfo.ipAddress);
+                        hotspot.setNetmask(dhcpInfo.netmask);
+                        hotspot.setServerAddress(dhcpInfo.serverAddress);
+                    }
+                }
+                if (connectedWifi != null) {
+                    wifiHotspots.add(0, connectedWifi);
+                }
+            }
+            return wifiHotspots;
+        }
+
+        private List<WifiHotspot> sortHotspotsByConfig(List<WifiHotspot> wifiHotspots) {
+            if (wifiHotspots != null && wifiHotspots.size() > 0) {
+                if (sortByHasConfigured) {
+                    return sortedByHasConfigured(wifiHotspots);
+                }
+            }
+            return wifiHotspots;
+        }
+    }
 }

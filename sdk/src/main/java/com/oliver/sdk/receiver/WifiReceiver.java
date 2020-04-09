@@ -11,17 +11,19 @@ import android.text.TextUtils;
 import com.oliver.sdk.event.WifiEvent;
 import com.oliver.sdk.util.SysUtil;
 
-import org.greenrobot.eventbus.EventBus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WifiReceiver extends BroadcastReceiver {
 
     public static final String TAG = WifiReceiver.class.getSimpleName();
     private int mLastWifiState = -1;
+    private List<OnWifiStateChangeListener> mOnWifiStateChangeListeners;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-//        LogUtils.d(TAG, "onReceiver action = " + action);
+        //        LogUtils.d(TAG, "onReceiver action = " + action);
         if (TextUtils.isEmpty(action)) {
             return;
         }
@@ -61,6 +63,31 @@ public class WifiReceiver extends BroadcastReceiver {
                 stateEvent.setRssiState();
                 break;
         }
-        EventBus.getDefault().post(stateEvent);
+        if (mOnWifiStateChangeListeners != null) {
+            for (OnWifiStateChangeListener listener : mOnWifiStateChangeListeners) {
+                listener.onWifiStateChange(stateEvent);
+            }
+        }
+    }
+
+    public void addOnWifiStateChangeListener(OnWifiStateChangeListener listener) {
+        if (mOnWifiStateChangeListeners == null) {
+            mOnWifiStateChangeListeners = new ArrayList<>();
+            mOnWifiStateChangeListeners.add(listener);
+            return;
+        }
+        if (!mOnWifiStateChangeListeners.contains(listener)) {
+            mOnWifiStateChangeListeners.add(listener);
+        }
+    }
+    public void removeOnWifiStateChangeListener(OnWifiStateChangeListener listener) {
+        if (mOnWifiStateChangeListeners != null && mOnWifiStateChangeListeners.contains(listener)) {
+            mOnWifiStateChangeListeners.remove(listener);
+        }
+    }
+
+
+    public interface OnWifiStateChangeListener {
+        void onWifiStateChange(WifiEvent stateEvent);
     }
 }

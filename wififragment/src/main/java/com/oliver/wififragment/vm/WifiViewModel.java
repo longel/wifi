@@ -10,26 +10,22 @@ import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 
 import com.oliver.sdk.WifiAdmin;
-import com.oliver.sdk.action.ScanResultAction;
 import com.oliver.sdk.constant.Global;
 import com.oliver.sdk.event.ConnectionEvent;
 import com.oliver.sdk.event.RSSIEvent;
-import com.oliver.wififragment.event.ScanResultEvent;
 import com.oliver.sdk.event.SupplicantStateEvent;
 import com.oliver.sdk.event.WifiEvent;
 import com.oliver.sdk.event.WifiStateEvent;
-import com.oliver.wififragment.constant.Constants;
-import com.oliver.wififragment.model.AccessPoint;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.receiver.WifiReceiver;
 import com.oliver.sdk.util.LogUtils;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import com.oliver.wififragment.constant.Constants;
+import com.oliver.wififragment.event.ScanResultEvent;
+import com.oliver.wififragment.model.AccessPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +47,29 @@ public class WifiViewModel extends AndroidViewModel {
     private MutableLiveData<SupplicantStateEvent> mSupplicantStateEventLiveData;
     private WifiReceiver mWifiReceiver;
     private Context mContext;
-    private List<AccessPoint> mDatas;
+
+
+    private Handler mHandler = new Handler();
+    private Runnable mScanRunnable = new Runnable() {
+        @Override
+        public void run() {
+            WifiAdmin.get().getScanResult(mCallback);
+        }
+    };
+
+    private WifiAdmin.OnScanResultCallback mCallback = new WifiAdmin.OnScanResultCallback() {
+        @Override
+        public void onScanResult(List<WifiHotspot> wifiHotspots) {
+            handleScanResults(wifiHotspots);
+        }
+    };
+
+    private WifiReceiver.OnWifiStateChangeListener mWifiStateChangeListener = new WifiReceiver.OnWifiStateChangeListener() {
+        @Override
+        public void onWifiStateChange(WifiEvent stateEvent) {
+            handleWifiStateEvent(stateEvent);
+        }
+    };
 
     public WifiViewModel(@NonNull Application application) {
         super(application);
@@ -65,7 +83,6 @@ public class WifiViewModel extends AndroidViewModel {
     }
 
     private void start() {
-        registerEventBus();
         registerWifiReceiver();
         if (WifiAdmin.get().isWifiEnable()) {
             WifiAdmin.get().scan();
@@ -92,20 +109,9 @@ public class WifiViewModel extends AndroidViewModel {
         return mSupplicantStateEventLiveData;
     }
 
-    private void registerEventBus() {
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-    }
-
-    private void unregisterEventBus() {
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
-    }
-
     private void registerWifiReceiver() {
         mWifiReceiver = new WifiReceiver();
+        mWifiReceiver.addOnWifiStateChangeListener(mWifiStateChangeListener);
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.RSSI_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -116,21 +122,23 @@ public class WifiViewModel extends AndroidViewModel {
     }
 
     public void unregisterWifiReceiver() {
-        mContext.unregisterReceiver(mWifiReceiver);
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
+        if (mWifiReceiver != null) {
+            mWifiReceiver.removeOnWifiStateChangeListener(mWifiStateChangeListener);
+            mContext.unregisterReceiver(mWifiReceiver);
         }
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        unregisterEventBus();
         unregisterWifiReceiver();
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mScanRunnable);
+        }
+        mHandler = null;
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBlueEvent(WifiEvent wifiStateEvent) {
+    private void handleWifiStateEvent(WifiEvent wifiStateEvent) {
         if (wifiStateEvent == null) {
             return;
         }
@@ -158,7 +166,10 @@ public class WifiViewModel extends AndroidViewModel {
 
                 break;
             case WifiEvent.SCAN_RESULT_UPDATE:
-                WifiAdmin.get().getScanResult();
+                if (mHandler != null) {
+                    mHandler.removeCallbacks(mScanRunnable);
+                    mHandler.postDelayed(mScanRunnable, 500);
+                }
                 break;
             case WifiEvent.NETWORK_STATE_UPDATE:
                 NetworkInfo networkInfo = wifiStateEvent.getNetworkInfo();
@@ -191,17 +202,11 @@ public class WifiViewModel extends AndroidViewModel {
     }
 
     public void syncState() {
-        onScanResult(new ScanResultAction());
+        handleScanResults(null);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onScanResult(ScanResultAction scanResultEvent) {
-        if (scanResultEvent == null) {
-            return;
-        }
+    private void handleScanResults(List<WifiHotspot> datas) {
         List<AccessPoint> accessPoints = new ArrayList<>();
-        List<WifiHotspot> datas = scanResultEvent.getDatas();
-        LogUtils.d(TAG, "onScanResult: " + datas);
         if (datas != null && datas.size() > 0) {
             for (WifiHotspot hotspot : datas) {
                 AccessPoint accessPoint = copyFromHotSpot(hotspot);
@@ -214,7 +219,7 @@ public class WifiViewModel extends AndroidViewModel {
         accessPoints.add(0, accessPoint);
         ScanResultEvent event = new ScanResultEvent();
         event.setDatas(accessPoints);
-        mScanResultEventLiveData.setValue(event);
+        mScanResultEventLiveData.postValue(event);
     }
 
     private AccessPoint copyFromHotSpot(WifiHotspot hotspot) {
@@ -244,7 +249,6 @@ public class WifiViewModel extends AndroidViewModel {
         accessPoint.setWifiEnable(WifiAdmin.get().isWifiEnable());
         return accessPoint;
     }
-
 
     public boolean isSame(WifiHotspot hotspot, WifiInfo wifiInfo) {
         return WifiAdmin.get().isSame(hotspot, wifiInfo);
