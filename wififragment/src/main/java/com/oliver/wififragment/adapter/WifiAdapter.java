@@ -4,8 +4,8 @@ import android.widget.ImageView;
 
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.oliver.sdk.R;
 import com.oliver.sdk.constant.Global;
+import com.oliver.wififragment.R;
 import com.oliver.wififragment.constant.Constants;
 import com.oliver.wififragment.model.AccessPoint;
 

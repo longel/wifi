@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.oliver.sdk.R;
 import com.oliver.sdk.constant.Global;
 import com.oliver.sdk.model.WifiHotspot;
+import com.oliver.wififragment.R;
 import com.qmuiteam.qmui.alpha.QMUIAlphaTextView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogBuilder;

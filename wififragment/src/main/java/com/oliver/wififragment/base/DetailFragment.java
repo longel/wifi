@@ -25,8 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.oliver.sdk.R;
 import com.oliver.sdk.WifiAdmin;
+import com.oliver.wififragment.R;
 import com.oliver.wififragment.model.AccessPoint;
 import com.qmuiteam.qmui.alpha.QMUIAlphaButton;
 

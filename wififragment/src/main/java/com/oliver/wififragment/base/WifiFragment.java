@@ -14,19 +14,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.oliver.sdk.R;
 import com.oliver.sdk.WifiAdmin;
-import com.oliver.sdk.event.ConnectionEvent;
-import com.oliver.wififragment.event.ScanResultEvent;
-import com.oliver.sdk.event.SupplicantStateEvent;
-import com.oliver.sdk.event.WifiStateEvent;
+import com.oliver.wififragment.event.ConnectionEvent;
+import com.oliver.wififragment.event.SupplicantStateEvent;
+import com.oliver.wififragment.event.WifiStateEvent;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.util.LogUtils;
-import com.oliver.wififragment.widget.ConnectDialogBuilder;
+import com.oliver.wififragment.R;
 import com.oliver.wififragment.adapter.WifiAdapter;
 import com.oliver.wififragment.constant.Constants;
+import com.oliver.wififragment.event.ScanResultEvent;
 import com.oliver.wififragment.model.AccessPoint;
 import com.oliver.wififragment.vm.WifiViewModel;
+import com.oliver.wififragment.widget.ConnectDialogBuilder;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 

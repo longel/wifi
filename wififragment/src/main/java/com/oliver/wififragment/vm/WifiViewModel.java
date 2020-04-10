@@ -15,11 +15,11 @@ import android.support.annotation.NonNull;
 
 import com.oliver.sdk.WifiAdmin;
 import com.oliver.sdk.constant.Global;
-import com.oliver.sdk.event.ConnectionEvent;
-import com.oliver.sdk.event.RSSIEvent;
-import com.oliver.sdk.event.SupplicantStateEvent;
+import com.oliver.wififragment.event.ConnectionEvent;
+import com.oliver.wififragment.event.RSSIEvent;
+import com.oliver.wififragment.event.SupplicantStateEvent;
 import com.oliver.sdk.event.WifiEvent;
-import com.oliver.sdk.event.WifiStateEvent;
+import com.oliver.wififragment.event.WifiStateEvent;
 import com.oliver.sdk.model.WifiHotspot;
 import com.oliver.sdk.receiver.WifiReceiver;
 import com.oliver.sdk.util.LogUtils;

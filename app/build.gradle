@@ -1,18 +1,17 @@
 apply plugin: 'com.android.application'
-def androidConfig = rootProject.ext.android
-def dependency = rootProject.ext.dependencies
+
 static def releaseTime() {
     return new Date().format("yyyyMMddHHmmss", TimeZone.getDefault())
 }
 android {
-    compileSdkVersion androidConfig.compileSdkVersion
+    compileSdkVersion 28
     defaultConfig {
-        applicationId androidConfig.applicationId
-        minSdkVersion androidConfig.minSdkVersion
-        targetSdkVersion androidConfig.targetSdkVersion
-        versionCode androidConfig.versionCode
-        versionName androidConfig.versionName
-        testInstrumentationRunner androidConfig.testInstrumentationRunner
+        applicationId "com.oliver.wifi"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -36,7 +35,6 @@ android {
                     // 如果是release版本，直接显示
                     fileName = fileName + "-release.apk"
                 }
-//                output.outputFileName = new File(outputFile.parent, fileName)
                 output.outputFileName = fileName
             }
         }

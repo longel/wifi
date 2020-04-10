@@ -1,4 +1,4 @@
-package com.oliver.sdk.event;
+package com.oliver.wififragment.event;
 
 
 import com.oliver.sdk.annotations.Connection;
